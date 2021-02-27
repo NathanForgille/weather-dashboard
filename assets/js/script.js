@@ -2,7 +2,14 @@
 let searchValue;
 let citySearched = localStorage.getItem("city");
 // the main function to fetch the initial weather forecast data and append it to the page
+if (citySearched){
+    searchValue = citySearched
+    weather();
+}
+
 function weather() {
+    $("#forecast").empty();
+    $("#today").empty();
     //personal weather api with a searchValue key from the user
     let request = "https://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&units=imperial&appid=a6019d4e4ae43293483d986afb1c5eec";
     //get that data baby
@@ -11,8 +18,6 @@ function weather() {
             return response.json();
         }).then(function (data) {
             // this line empties the forecast and allows the new search to populate in the previous searches place
-            $("#forecast").empty();
-            $("#today").empty();
             // this line grabs the latitude and longitude for the uvIndex function
             let latitude = data.city.coord.lat;
             let longitude = data.city.coord.lon;
@@ -70,8 +75,15 @@ function uvIndex(latitude, longitude) {
         });
 }
 function searchedCities() {
-      let ls = ($("#citiesSearched").append($("<p class='city-searched'>").text("Weather changes! Go ahead and double check it!")));
-      ls.append($("<li>").val(searchValue));
+    let oldCity = $("<li>").text(searchValue[0].toUpperCase() + searchValue.slice(1));
+    oldCity.val(searchValue);
+    oldCity.on("click", (e) => {
+        console.log(e);
+        searchValue = e.target.innerText;
+        weather();
+    });
+    $("#citiesSearched").append(oldCity);
+    //   ls.append($("<li>").text(searchValue));
 }
 searchedCities();
 
@@ -82,5 +94,6 @@ $("#search-button").on("click", function (event) {
     searchValue = $("#search-value").val().trim();
     weather();
     localStorage.setItem('city', (searchValue));
+    searchedCities();
     $("#search-value").val("");
 })
